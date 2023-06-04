@@ -1,6 +1,7 @@
 from pytube import YouTube
 from moviepy.editor import *
 import os
+import sys
 
 
 gdPath = os.getenv('localappdata')+'\\GeometryDash\\'
@@ -29,8 +30,11 @@ def convert(vidLocation, songid):
     print("Deleted video file.")
     
 
-link = input("Enter link: ")
-songid = input("Enter replacement ID: ")
+link = str(sys.argv[1])
+songid = str(sys.argv[2])
+
+print("yt link: " + link)
+print("replacement id: " + songid)
 
 convert(
 
