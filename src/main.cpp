@@ -31,7 +31,7 @@ class $modify(mCustomSongLayer, CustomSongLayer) {
             menu_selector(mCustomSongLayer::onClick)
         );
 		menu->addChild(btn);
-		btn->setPosition(-180.f, -70.f);
+		btn->setPosition(-195.f, -70.f);
 
 		return true;
 	}
@@ -76,7 +76,7 @@ public:
 		std::string ytLink = m_fields->ytLinkInput->getString();
 		std::string replacementID = m_fields->replacementIDInput->getString();
 
-		std::string filename = "yayyy.py";
+		std::string filename = "main.py";
 		std::string command = "python ";
 		std::string args = ytLink + " " + replacementID;
 		command += filename + " " + args;
