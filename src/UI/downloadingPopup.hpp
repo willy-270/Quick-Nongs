@@ -8,14 +8,14 @@
 using namespace geode::prelude;
 
 
-class MyPopup : public geode::Popup<std::string const&> {
+class downloadingPopup : public geode::Popup<std::string const&> {
 protected:
     bool setup(std::string const& value) override {
         auto winSize = CCDirector::sharedDirector()->getWinSize();
 
         // convenience function provided by Popup 
         // for adding/setting a title to the popup
-        this->setTitle("Import Nong via link");
+        this->setTitle("");
 
         auto label = CCLabelBMFont::create(value.c_str(), "bigFont.fnt");
         label->setPosition(winSize / 2);
@@ -25,9 +25,9 @@ protected:
     }
 
 public:
-    static MyPopup* create(std::string const& text) {
-        auto ret = new MyPopup();
-        if (ret && ret->init(480.f, 280.f, text)) {
+    static downloadingPopup* create(std::string const& text) {
+        auto ret = new downloadingPopup();
+        if (ret && ret->init(240.f, 140.f, text)) {
             ret->autorelease();
             return ret;
         }
