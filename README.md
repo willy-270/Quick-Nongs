@@ -1,4 +1,4 @@
-# nongthing
+# Quick Nongs
 
 tool that allows you to easily get nongs by entering a link and replacement id
 
