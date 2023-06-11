@@ -9,8 +9,12 @@
 #include <regex>
 #include <wininet.h>
 #include <fstream>
-#include <string>
+#include <shlobj.h>
+#include <iostream>
+#include<Windows.h>
+#include<string>
 #pragma comment(lib,"Wininet.lib")
+#pragma comment(lib, "urlmon.lib")
 
 using namespace geode::prelude;
 
@@ -79,6 +83,8 @@ public:
         );
 		menu2->addChild(btn2);
 		btn2->setPosition(hSize / 2, -90.f);
+
+		checkForYtdlp();
     }
 
 public:
@@ -151,9 +157,10 @@ public:
 			return false;
 		}
 		
-		auto NongytFolderExists = std::filesystem::is_directory("quicknongs");
+		auto quicknongsFolderExists = std::filesystem::is_directory("quicknongs");
 		auto ytdlpExists = std::filesystem::exists("quicknongs\\yt-dlp.exe");
-		if (!NongytFolderExists) {
+
+		if (!quicknongsFolderExists) {
 			FLAlertLayer::create(
 				"\"quicknongs\" not found.",    
 				"Please make a folder called <cy>\"quicknongs\"</c> in the root of your Geometry Dash directory, then restart the game.",  
@@ -238,7 +245,7 @@ public:
 		// "done" popup
 		FLAlertLayer::create(
 			"Done!",    
-			"Download sucsessful!\nStored <cy>\"" + title + "</c> as <cy>\"" + replacementID + ".mp3\"</c>",  
+			"Download successful!\nStored <cy>\"" + title + "</c> as <cy>\"" + replacementID + ".mp3\"</c>",  
 			"OK"        
 		)->show();
 	}
@@ -266,4 +273,60 @@ public:
 
 		return json.substr(pos + 1, endPos - pos - 1);
 	}
+public:
+	std::string getDwlPath() {
+		PWSTR widePath;
+		HRESULT result = SHGetKnownFolderPath(FOLDERID_Downloads, 0, NULL, &widePath);
+		if (SUCCEEDED(result)) {
+			std::wstring wideString(widePath);
+			CoTaskMemFree(widePath);
+
+			// Convert wide string to narrow string
+			std::string dwlPath(wideString.begin(), wideString.end());
+			return dwlPath;
+		} else {
+			std::cerr << "Failed to retrieve Downloads folder path." << std::endl;
+			return "";
+		}
+	}
+public:
+	void checkForYtdlp() {
+		auto quicknongsFolderExists = std::filesystem::is_directory("quicknongs");
+		auto ytdlpExists = std::filesystem::exists("quicknongs\\yt-dlp.exe");
+
+		if (!quicknongsFolderExists) {
+			std::filesystem::create_directory("quicknongs");
+		}	
+		if (!ytdlpExists) {
+			createQuickPopup(
+				"yt-dlp.exe not found.",        
+				"this mod requires <cy>yt-dlp.exe</c> to work. Would you like to download it?",  
+				"No", "Yes",    
+				[this](auto, bool btn2) {
+					if (btn2) {
+						dwlYtdlp();
+					}
+				}
+			);
+		}
+	}
+public:
+	void dwlYtdlp() {
+		std::string dwnld_URL = "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe";
+		std::string dwlFolder = getDwlPath();
+		std::string dwlSavePath = dwlFolder + "\\yt-dlp.exe";
+
+		URLDownloadToFile(NULL, dwnld_URL.c_str(), dwlSavePath.c_str(), 0, NULL);
+
+		std::filesystem::copy(dwlSavePath, "quicknongs");
+		std::filesystem::remove(dwlSavePath);
+
+		FLAlertLayer::create(
+			"Done!",    
+			"Download complete.",  
+			"OK"        
+		)->show();
+	}	
 };
+
+	
