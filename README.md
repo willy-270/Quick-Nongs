@@ -2,7 +2,7 @@
 
 tool that allows you to easily get nongs by entering a link and replacement id, all while staying inside the game.
 
-## NOTE: THIS MOD REQUIRED YOU HAVE FFMPEG INSTALED
+## NOTE: THIS MOD REQUIRES YOU HAVE FFMPEG INSTALED
 
 Make sure you have [ffmpeg](https://www.gyan.dev/ffmpeg/builds/) downloaded and properly added to your system path varible. most of the versions should work, but I made this mod while using ffmpeg full build 6.0.
 
