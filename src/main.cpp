@@ -1,20 +1,15 @@
 #include <Geode/Geode.hpp>
 
-#include <Geode/modify/MenuLayer.hpp>
 #include <Geode/modify/CustomSongLayer.hpp>
 #include <Geode/modify/LevelSettingsObject.hpp>
 #include <Geode/ui/Popup.hpp>
 #include <Geode/ui/InputNode.hpp>
 #include "UI/popup.hpp"
 #include <filesystem>
-#include <Windows.h>
-#include <winbase.h>
 #include <regex>
 #include <wininet.h>
-#include <iostream>
 #include <fstream>
 #include <string>
-
 #pragma comment(lib,"Wininet.lib")
 
 using namespace geode::prelude;
@@ -93,7 +88,7 @@ public:
 		std::string replacementID = m_fields->replacementIDInput->getString();
 
 		//obtains songolder path and mp3 location
-		std::string mp3Location = "nongyt\\" + replacementID + ".mp3";
+		std::string mp3Location = "quicknongs\\" + replacementID + ".mp3";
 		std::string appdata = getenv("LOCALAPPDATA");
 		std::string songFolder = appdata + "\\GeometryDash";
 
@@ -155,9 +150,28 @@ public:
 			)->show();
 			return false;
 		}
+		
+		auto NongytFolderExists = std::filesystem::is_directory("quicknongs");
+		auto ytdlpExists = std::filesystem::exists("quicknongs\\yt-dlp.exe");
+		if (!NongytFolderExists) {
+			FLAlertLayer::create(
+				"\"quicknongs\" not found.",    
+				"Please make a folder called <cy>\"quicknongs\"</c> in the root of your Geometry Dash directory, then restart the game.",  
+				"OK"        
+			)->show();
+			return false;
+		}
+
+		if (!ytdlpExists) {
+			FLAlertLayer::create(
+				"\"yt-dlp.exe\" not found.",    
+				"Please add <cy>\"yt-dlp.exe\"</c> to your <cy>\"quicknongs\"</c> folder.",  
+				"OK"        
+			)->show();
+			return false;
+		}
 
 		std::string mp3File = replacementID + ".mp3";;
-
 		//loops through every file in the gd song folder and checks if any match the reauested replacement id
 		for (const auto & entry : std::filesystem::directory_iterator(songFolder)) {
 			std::string fullFileName = entry.path().string();
@@ -189,7 +203,7 @@ public:
 		std::string mp3File = replacementID + ".mp3";
 
 		std::filesystem::remove(songFolder + "\\" + mp3File);
-		std::filesystem::remove("nongyt\\" + mp3File + "info.json");
+		std::filesystem::remove("quicknongs\\" + replacementID + ".info.json");
 
 		dlMp3();
 	}
@@ -201,35 +215,30 @@ public:
 		std::string replacementID = m_fields->replacementIDInput->getString();
 		std::string ytLink = m_fields->ytLinkInput->getString();
 		std::string mp3File = replacementID + ".mp3";
-		std::string mp3Location = "nongyt\\" + mp3File;
+		std::string mp3Location = "quicknongs\\" + mp3File;
 
 		//download the mp3
-		std::string dlMp3Cmd = "cd nongyt && yt-dlp -x --audio-format mp3 --parse-metadata \"title:%(artist)s - %(title)s\" --parse-metadata \"%(artist|)s:%(meta_artist)s\" --parse-metadata \"%(track|)s:%(meta_title)s\" --embed-metadata " + ytLink + " -o \"" + replacementID + ".%(ext)s\" --console-title --write-info-json";
+		std::string dlMp3Cmd = "cd quicknongs && yt-dlp -x --audio-format mp3 --parse-metadata \"%(artist|)s:%(meta_artist)s\" --parse-metadata \"%(title|)s:%(meta_title)s\" --embed-metadata " + ytLink + " -o \"" + replacementID + ".%(ext)s\" --console-title --write-info-json";
 		system(dlMp3Cmd.c_str());
 
-		std::ifstream file("nongyt\\" + replacementID + ".info.json");
+		std::ifstream file("quicknongs\\" + replacementID + ".info.json");
 		std::string json((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-		log::info(json);
 
 		// Extract values from the JSON
 		std::string title = extractValue(json, "title");
-		log::info(title);
-		
 		std::string artist = extractValue(json, "artist");
 		if (artist == "") {
 			artist = extractValue(json, "uploader");
 		}		
-		log::info(artist);
 
 		// copies mp3 to songfolder, deltes original
 		std::filesystem::copy(mp3Location, songFolder);
 		std::filesystem::remove(mp3Location);
-		log::info("copy n remove done");
 
 		// "done" popup
 		FLAlertLayer::create(
 			"Done!",    
-			"Download sucsessful!\nStored <cy>\"" + title + "\"</c> by <cy>" + artist + "</c> as <cy>\"" + replacementID + ".mp3\"</c>",  
+			"Download sucsessful!\nStored <cy>\"" + title + "</c> as <cy>\"" + replacementID + ".mp3\"</c>",  
 			"OK"        
 		)->show();
 	}
