@@ -1,8 +1,8 @@
 {
 	"geode": "1.0.0-beta.18",
 	"version": "v1.0.0",
-	"id": "willy.nongthing",
-	"name": "nongthing",
+	"id": "willy.QuickNongs",
+	"name": "Quick Nongs",
 	"developer": "willy",
-	"description": ""
+	"description": "tool that allows you to easily get nongs by entering a link and replacement id, all while staying inside the game."
 }
